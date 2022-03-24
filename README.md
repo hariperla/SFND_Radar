@@ -38,6 +38,13 @@ sig_fft2 = fftshift (sig_fft2);
 RDM = abs(sig_fft2);
 RDM = 10*log10(RDM) ;
 ```
+## Range measurement output
+![image](https://user-images.githubusercontent.com/40438231/159948158-9fe7a9a4-6d94-4c77-9c8a-ec9e94dca6b8.png)
+
+
+## Range Doppler response output
+![image](https://user-images.githubusercontent.com/40438231/159948012-c5720bf7-3277-485e-bc13-f8e7423c34d3.png)
+
 
 ## CFAR implementation
 * Slide cell under test across the whole matrix
