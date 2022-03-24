@@ -69,3 +69,9 @@ gc_range = 4
 gc_doppler = 2
 offset = 2
 ```
+
+## Steps for suppressing non thresholded cells
+```
+RDM(union(1:(tc_range + gc_range),end - (tc_range + gc_range - 1):end),:) = 0
+RDM(:,union(1:(tc_doppler + gc_doppler),end - (tc_doppler + gc_doppler - 1):end)) = 0
+```
