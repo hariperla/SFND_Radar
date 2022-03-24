@@ -50,3 +50,22 @@ for j = tc_doppler + gc_doppler + 1 : Nd - (gc_doppler + tc_doppler)
 for k = i - (tc_range + gc_range) : i + (tc_range + gc_range)
 for m = j - (tc_doppler + gc_doppler) : j + (tc_doppler + gc_doppler)
 ```
+* Calculate noise level
+```
+noise_level = noise_level + db2pow(RDM(k,m))
+```
+* Calculate threshold after adding offset
+```
+threshold = pow2db(noise_level/training_cell_size);
+threshold = threshold + offset;
+```
+* If Cell under test is > threshold then it's 1 else it's 0
+
+## CFAR parameters
+```
+tc_range = 8
+tc_doppler = 4
+gc_range = 4
+gc_doppler = 2
+offset = 2
+```
