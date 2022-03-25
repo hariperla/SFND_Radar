@@ -132,10 +132,10 @@ axis ([0 200 0 1]);
 % doppler FFT bins. So, it is important to convert the axis from bin sizes
 % to range and doppler based on their Max values.
 
-Mix=reshape(Mix,[Nr,Nd]);
+Mix_reshaped=reshape(Mix,[Nr,Nd]);
 
 % 2D FFT using the FFT size for both dimensions.
-sig_fft2 = fft2(Mix,Nr,Nd);
+sig_fft2 = fft2(Mix_reshaped,Nr,Nd);
 
 % Taking just one side of signal from Range dimension.
 sig_fft2 = sig_fft2(1:Nr/2,1:Nd);
@@ -167,11 +167,11 @@ gc_doppler = 2;
 
 % *%TODO* :
 % offset the threshold by SNR value in dB
-offset = 3;
+offset = 1.6;
 
 % *%TODO* :
 %Create a vector to store noise_level for each iteration on training cells
-noise_level = zeros(1,1);
+% noise_level = zeros(1,1);
 
 
 % *%TODO* :
@@ -188,28 +188,30 @@ noise_level = zeros(1,1);
 
 % Use RDM[x,y] as the matrix from the output of 2D FFT for implementing
 % CFAR
+RDM_thresholded = RDM/max(max(RDM));
+
 for i = tc_range + gc_range + 1 : (Nr/2) - (gc_range + tc_range)
     for j = tc_doppler + gc_doppler + 1 : Nd - (gc_doppler + tc_doppler)
+        noise_level = zeros(1,1);
         % Calculate noise sum across the CUT here
         for k = i - (tc_range + gc_range) : i + (tc_range + gc_range)
             for m = j - (tc_doppler + gc_doppler) : j + (tc_doppler + gc_doppler)
                 if(abs(i - k) > gc_range || abs(j - m) > gc_doppler)
-                    noise_level = noise_level + db2pow(RDM(k,m));
+                    noise_level = noise_level + db2pow(RDM_thresholded(k,m));
                 end
             end
         end
         % Determine the training cell size
-        training_cell_size = (2 * tc_range + 2* gc_range + 1) * (2 * tc_doppler + 2 * gc_doppler + 1) - ...
-                             (2 * gc_range + 1) * (2 * gc_doppler + 1);
+        training_cell_size = 2 * (tc_doppler + gc_doppler + 1)* 2 * (tc_range + gc_range + 1)-(gc_range * gc_doppler)-1;
         % Add offset to determine the threshold
         threshold = pow2db(noise_level/training_cell_size);
         % Add offset
         threshold = threshold + offset;
 
-        if (RDM(i,j) > threshold)
-            RDM(i,j) = 1;
+        if (RDM_thresholded(i,j) > threshold)
+            RDM_thresholded(i,j) = 1;
         else
-            RDM(i,j) = 0;
+            RDM_thresholded(i,j) = 0;
         end
     end
 end
@@ -219,17 +221,13 @@ end
 %than the Range Doppler Map as the CUT cannot be located at the edges of
 %matrix. Hence,few cells will not be thresholded. To keep the map size same
 % set those values to 0. 
-RDM(union(1:(tc_range + gc_range),end - (tc_range + gc_range - 1):end),:) = 0; % setting 0 across rows
-RDM(:,union(1:(tc_doppler + gc_doppler),end - (tc_doppler + gc_doppler - 1):end)) = 0; % setting 0 across rows
+RDM_thresholded(union(1:(tc_range + gc_range),end - (tc_range + gc_range - 1):end),:) = 0; % setting 0 across rows
+RDM_thresholded(:,union(1:(tc_doppler + gc_doppler),end - (tc_doppler + gc_doppler - 1):end)) = 0; % setting 0 across columns
         
 
 % *%TODO* :
 %display the CFAR output using the Surf function like we did for Range
 %Doppler Response output.
 figure ('Name','CFAR output')
-surf(doppler_axis,range_axis,RDM);
+surf(doppler_axis,range_axis,RDM_thresholded);
 colorbar;
-
-
- 
- 
