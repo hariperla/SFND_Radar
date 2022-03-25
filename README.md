@@ -59,7 +59,7 @@ for m = j - (tc_doppler + gc_doppler) : j + (tc_doppler + gc_doppler)
 ```
 * Calculate noise level
 ```
-noise_level = noise_level + db2pow(RDM(k,m))
+noise_level = noise_level + db2pow(RDM_thresholded(k,m))
 ```
 * Calculate threshold after adding offset
 ```
@@ -83,4 +83,5 @@ RDM(union(1:(tc_range + gc_range),end - (tc_range + gc_range - 1):end),:) = 0
 RDM(:,union(1:(tc_doppler + gc_doppler),end - (tc_doppler + gc_doppler - 1):end)) = 0
 ```
 ## CFAR output
-![image](https://user-images.githubusercontent.com/40438231/159947807-53c9c963-4ce3-433b-b225-5c3967431a70.png)
+![image](https://user-images.githubusercontent.com/40438231/160125361-7b0dd095-03fa-470b-9219-f569321df6aa.png)
+
